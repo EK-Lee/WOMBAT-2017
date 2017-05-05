@@ -1,0 +1,12 @@
+---
+title: "Visualization for Data Mining"
+output:
+  ioslides_presentation
+---
+
+## Outline
+
+* Introduction
+*
+*
+* 
