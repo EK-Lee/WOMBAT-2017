@@ -6,7 +6,5 @@ output:
 
 ## Outline
 
-* Introduction
-*
-*
-* 
+* The Toolbox: Multivariate data plots, dimension reduction, interactive graphics
+* Supervised Classification: Checking assumptions, examining misclassifications, variable importance, visualising boundaries, exploring ensembles
