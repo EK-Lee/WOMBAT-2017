@@ -12,7 +12,8 @@ output:
 * Forests: Variable importance, confusion table, vote matrix, 
 proximity matrix, oblique forest shiny app
 * Support vector machines: support vectors, boundary
-* Neural networks: Componoents
+* Neural networks: Components
+* High-dimension, small sample size
 
 ## Toolbox
 
@@ -42,3 +43,29 @@ proximity matrix, oblique forest shiny app
 * Variable importance
 * Visualising boundaries
 * Exploring ensembles
+
+## Checking assumptions
+
+* LDA: equal variance-covariances
+* 
+
+## Examining misclassifications
+
+Linking confusion table with data plots
+
+## Variable importance
+
+Ordering par coords by importance
+
+## Visualising boundaries
+
+Predicting grid and viewing with tour
+
+## Exploring ensembles
+
+* Diagnostics
+* Pruning
+
+## Trees
+
+
