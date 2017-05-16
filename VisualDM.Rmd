@@ -8,3 +8,8 @@ output:
 
 * The Toolbox: Multivariate data plots, dimension reduction, interactive graphics
 * Supervised Classification: Checking assumptions, examining misclassifications, variable importance, visualising boundaries, exploring ensembles
+* Trees: Exploring splits, oblique trees
+* Forests: Variable importance, confusion table, vote matrix, 
+proximity matrix, oblique forest shiny app
+* Support vector machines: support vectors, boundary
+* Neural networks: Componoents
