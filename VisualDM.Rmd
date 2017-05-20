@@ -4,6 +4,25 @@ output:
   ioslides_presentation
 ---
 
+## Conceptual framework
+
+- Visual methods for high-dimensional data are well-developed and understood. Toolbox includes:
+  + scatterplot matrics
+  + parallel coordinate plots
+  + interactive tools like brushing and linking
+  + dynamic methods like tours
+- These methods can also be used to visualise our models, often leading to some surprise that the fitted models may be different from expected.
+
+## Questions to answer
+
+- What does the model look like? How does the model change when its parameters change? How do the parameters change when the data is changed?
+- How well does the model fit the data? How does the shape of the model compare to the shape of the data? Is the model fitting uniformly good, or good in some regions but poor in other regions? Where might the fit be improved?
+
+## Key strategies
+
+- Display the model in data space (m-in-ds), as well as the data in the model space.
+- Look at all members of a collection of a model, not just a single one.
+- Explore the process of fitting, not just the end result.
 ## Outline
 
 * The Toolbox: Grammar of graphics, multivariate data plots, dimension reduction, interactive graphics
@@ -68,4 +87,8 @@ Predicting grid and viewing with tour
 
 ## Trees
 
+## Sources
+
+- Wickham, Cook, Hofmann (2015) Visualizing statistical models: Removing the blindfold, Statistical Analysis and Data Mining, (http://dx.doi.org/10.1002/sam.11271)
+- Cook and Swayne (2007) Interactive and Dynamic Graphics for Data Analysis: With Examples Using R and GGobi (http://www.ggobi.org/book/)
 
