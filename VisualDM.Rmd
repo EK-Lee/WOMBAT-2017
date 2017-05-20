@@ -7,7 +7,7 @@ output:
 ## Conceptual framework
 
 - Visual methods for high-dimensional data are well-developed and understood. Toolbox includes:
-  + scatterplot matrics
+  + scatterplot matrices
   + parallel coordinate plots
   + interactive tools like brushing and linking
   + dynamic methods like tours
@@ -33,7 +33,7 @@ df <- data.frame(x=runif(100))
 df <- df %>% mutate(y=c(5+3*x[-100]+rnorm(99), 15))
 df_lm <- lm(y~x, data=df)
 df <- df %>% mutate(res = residuals(df_lm))
-p1 <- ggplot(df, aes(x=res)) + geom_histogram() + 
+p1 <- ggplot(df, aes(x=res)) + geom_histogram(binwidth=0.5) + 
   ggtitle("Data in the model space") +
   xlab("Residuals") + theme(aspect.ratio=1)
 coefs <- coefficients(df_lm)
@@ -50,7 +50,7 @@ grid.arrange(p1, p2, ncol=2)
 library(MASS)
 library(mvtnorm)
 g1 <- rmvnorm(n=120, mean=c(1,2), sigma=matrix(c(4,2,2,3), ncol=2)) 
-g2 <- rmvnorm(n=80, mean=c(-1,-3), sigma=matrix(c(6,3,3,6), ncol=2))
+g2 <- rmvnorm(n=80, mean=c(-1,-3), sigma=matrix(c(6,-3,-3,6), ncol=2))
 df <- data.frame(x1=c(g1[,1], g2[,1]), x2=c(g1[,2], g2[,2]), g=c(rep("A", 120), rep("B", 80)))
 df_lda <- lda(g~., data=df, prior=c(0.5, 0.5))
 df <- df %>% mutate(pred = as.vector(predict(df_lda)$x[,1]))
@@ -70,6 +70,30 @@ p2 <- ggplot(df_grid, aes(x=x1, y=x2, colour=pred)) +
   theme_bw() + theme(aspect.ratio=1)
 grid.arrange(p1, p2, ncol=2)
 ```
+
+## Your turn
+
+For each of the two previous displays, write down one thing that you learn differently from the two different ways of looking at the model and data.
+
+```{r echo=FALSE, eval=FALSE}
+1. 
+D-in-MS: Focus is on residuals, see the outlier clearly
+M-in-DS: See that the model fits the middle of the data nicely, outlier may have pulled the line
+2. 
+D-in-M-S: Predictions are routine, some cases misclassified
+M-in-D-S: Variances of the two groups are slightly different
+```
+
+## Your turn
+
+This is a typical diagram used to explain how to build a Support Vector Machine. Is it M-in-DS or D-in-MS??
+
+![by cyc on wikipedia](svm.png)
+
+## All members of a collective
+
+- All possible models,  e.g. for a linear regression, we can generate all possible main effects models.
+- Same model fit to subsets: neural networks (ensembles of logistic models), random forests (ensembles of trees)
 
 ## My notes
 
