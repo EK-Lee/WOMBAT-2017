@@ -23,6 +23,59 @@ output:
 - Display the model in data space (m-in-ds), as well as the data in the model space.
 - Look at all members of a collection of a model, not just a single one.
 - Explore the process of fitting, not just the end result.
+
+## Model in the data space
+
+```{r echo=FALSE, warning=FALSE, error=FALSE, message=FALSE}
+library(tidyverse)
+library(gridExtra)
+df <- data.frame(x=runif(100))
+df <- df %>% mutate(y=c(5+3*x[-100]+rnorm(99), 15))
+df_lm <- lm(y~x, data=df)
+df <- df %>% mutate(res = residuals(df_lm))
+p1 <- ggplot(df, aes(x=res)) + geom_histogram() + 
+  ggtitle("Data in the model space") +
+  xlab("Residuals") + theme(aspect.ratio=1)
+coefs <- coefficients(df_lm)
+p2 <- ggplot(df, aes(x=x, y=y)) + geom_point() +
+  geom_abline(intercept=coefs[1], slope=coefs[2]) +
+  ggtitle("Model in the data space") + 
+  theme(aspect.ratio=1)
+grid.arrange(p1, p2, ncol=2)
+```
+
+## Model in the data space
+
+```{r echo=FALSE, warning=FALSE, error=FALSE, message=FALSE}
+library(MASS)
+library(mvtnorm)
+g1 <- rmvnorm(n=120, mean=c(1,2), sigma=matrix(c(4,2,2,3), ncol=2)) 
+g2 <- rmvnorm(n=80, mean=c(-1,-3), sigma=matrix(c(6,3,3,6), ncol=2))
+df <- data.frame(x1=c(g1[,1], g2[,1]), x2=c(g1[,2], g2[,2]), g=c(rep("A", 120), rep("B", 80)))
+df_lda <- lda(g~., data=df, prior=c(0.5, 0.5))
+df <- df %>% mutate(pred = as.vector(predict(df_lda)$x[,1]))
+p1 <- ggplot(df, aes(x=pred)) + 
+  geom_histogram(breaks=seq(-3, 5, 0.5)) + 
+  geom_vline(xintercept=0, colour="red") +
+  facet_wrap(~g, ncol=1) +
+  ggtitle("Data in the model space")
+df_grid <- expand.grid(x1=seq(-10,10,0.2), x2=seq(-11,10,0.2)) 
+df_grid$pred <- predict(df_lda, df_grid)$class
+p2 <- ggplot(df_grid, aes(x=x1, y=x2, colour=pred)) + 
+  geom_point(alpha=0.1) +
+  geom_point(data=df, aes(x=x1, y=x2, colour=g), 
+             shape=4, size=3, inherit.aes = FALSE) +
+  scale_colour_brewer("", palette="Dark2") +
+  ggtitle("Model in the data space") + 
+  theme_bw() + theme(aspect.ratio=1)
+grid.arrange(p1, p2, ncol=2)
+```
+
+## My notes
+
+- show how to extract SVs
+- forest components
+
 ## Outline
 
 * The Toolbox: Grammar of graphics, multivariate data plots, dimension reduction, interactive graphics
