@@ -198,15 +198,63 @@ ggplotly(p, tooltip = "text") %>% layout(dragmode = "select")
 
 This needs some more work to get brushing going.
 
+## Neural networks
+
+$$P(y \in \textrm{class}_j | x_{1}, ..., x_{p}) = k \cdot \phi ( \alpha + \sum_{h=1}^s w_{hj} \phi (\alpha_h + \sum_{i=1}^p w_{ih} x_i ))$$
+
+```{r echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, results='hide', fig.show='hide'}
+library(nnet)
+library(readr)
+w <- read_csv("wiggly.csv")[ ,2:4]
+w <- transform(w, class = factor(class, labels = c("A", "B")))
+sqr <- theme(aspect.ratio = 1)
+nolab <- list(scale_x_continuous(""), scale_y_continuous(""))
+col_d <- scale_colour_manual(values = c("#377EB8", "#E41A1C"))
+fill_c <- scale_fill_gradient2(low = "#E41A1C", mid = "white", high = "#377EB8",
+  midpoint = 0.5)
+load("wiggly-multi.rdata")
+many <- rbind(many2$coef, many3$coef, many4$coef)
+many <- plyr::rename(many, c(size = "nodes"))
+many$id <- (many$nodes - 2) * 200 + as.integer(many$i)
+source("explore.r")
+best <- Filter(function(x) accuracy(x) == 1, many4$all)[[1]]
+```
+
+```{r echo=FALSE}
+p1 <- ggplot(subset(best$output,  node == 1), aes(x, y)) +
+  geom_raster(aes(fill = pred)) +
+  geom_point(aes(shape = class), data = w) +
+  sqr +
+  fill_c +
+  nolab
+p2 <- ggplot(best$hidden, aes(x, y)) +
+  geom_contour(aes(z = pred, group = node), colour = "grey50", size = 2,
+    breaks = 0.5) +
+  geom_point(aes(colour = class, shape = class), data = w) +
+  sqr + col_d + nolab
+grid.arrange(p1, p2, ncol=2)
+```
+
+## Hidden nodes
+
+```{r echo=FALSE}
+hidden_fill <- scale_fill_gradient2(low = "#AF8DC3", mid = "#F7F7F7",
+  high = "#7FBF7B", midpoint = 0.5, limits = c(0, 1))
+
+ggplot(best$hidden, aes(x, y)) +
+  geom_raster(aes(fill = pred)) +
+  geom_point(aes(shape = class), data = w) +
+  sqr +
+  facet_grid(. ~ node) +
+  hidden_fill +
+  nolab
+```
+
 ## Random forest
 
 - Tree-level: each tree has its own training/test samples
 - Variable-level: each variable is ranked by the drop in model performance for each tree
 - Observation-level: for each observation we have the distribution of predictions across all trees
-
-## Neural networks
-
-$$P(y \in \textrm{class}_j | x_{1}, ..., x_{p}) = k \cdot \phi ( \alpha + \sum_{h=1}^s w_{hj} \phi (\alpha_h + \sum_{i=1}^p w_{ih} x_i ))$$
 
 ## My notes
 
