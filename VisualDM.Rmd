@@ -7,10 +7,10 @@ output:
 ## Conceptual framework
 
 - Visual methods for high-dimensional data are well-developed and understood. Toolbox includes:
-  + scatterplot matrices
-  + parallel coordinate plots
-  + interactive tools like brushing and linking
-  + dynamic methods like tours
+    + scatterplot matrices
+    + parallel coordinate plots
+    + interactive tools like brushing and linking
+    + dynamic methods like tours
 - These methods can also be used to visualise our models, often leading to some surprise that the fitted models may be different from expected.
 
 ## Questions to answer
@@ -250,11 +250,60 @@ ggplot(best$hidden, aes(x, y)) +
   nolab
 ```
 
+## Your turn
+
+1. In the formula for the model, what is $s$, $p$.
+3. Sketch the neural network diagram that corresponds to the best model.
+
+## Explore the process of fitting
+
+<iframe src="https://player.vimeo.com/video/767832" width="640" height="483" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
+
+## Model comparison
+
+```{r echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, results='hide'}
+qual <- unique(many[, c("value", "accuracy", "nodes", "id")])
+ggplot(data = qual, aes(x=accuracy, y=value)) + 
+  geom_point() +
+  xlab("Accuracy") +
+  ylab("Value of fitting criterion") + 
+  facet_wrap(~ nodes)
+```
+
+## Boundaries for each model
+
+```{r echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, results='hide'}
+all <- mapply(function(nn, i, j) {
+  df <- subset(nn$output, node==1)
+  df$id <- i
+  df$nodes <- j
+  df
+}, c(many2$all,many3$all,many4$all), 1:600, 
+  rep(2:4, each=200), SIMPLIFY = FALSE)
+all <- do.call("rbind", all)
+
+contours <- plyr::ddply(all, plyr::.(nodes, id), 
+              function(df) contour(df$x, df$y, df$pred))
+contours <- subset(contours, piece == 1)
+contours <- merge(contours, qual)
+contours$acc <- cut(contours$accuracy, c(0, 0.915, 0.925, 0.98, 1),
+  labels = c("Sub-linear", "Linear", "Super-linear", "Excellent"))
+
+ggplot(contours, aes(x, y)) + sqr +
+  geom_path(aes(group = id), 
+            colour = scales::alpha("grey50", 0.5)) +
+  facet_grid(nodes ~ acc) +
+  nolab
+```
+
 ## Random forest
 
 - Tree-level: each tree has its own training/test samples
 - Variable-level: each variable is ranked by the drop in model performance for each tree
 - Observation-level: for each observation we have the distribution of predictions across all trees
+
+We will come back to this later, because the area is very rich.
+
 
 ## My notes
 
