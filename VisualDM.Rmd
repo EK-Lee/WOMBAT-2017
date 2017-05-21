@@ -95,6 +95,119 @@ This is a typical diagram used to explain how to build a Support Vector Machine.
 - All possible models,  e.g. for a linear regression, we can generate all possible main effects models.
 - Same model fit to subsets: neural networks (ensembles of logistic models), random forests (ensembles of trees)
 
+## Linear regression
+
+- Model level: model fit statistics. $m$ observations.
+- Model-estimate level: coefficient estimates on various scales. $m \times p$ observations.
+- Estimate level: summary of estimates over the models. $p$ observations.
+- Model-observation level: residuals and influence measures. $m \times n$ observations.
+ Observation level: the original data, plus summaries of residual behavior. $n$ observations.
+
+## All possible models
+
+```{r echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, results='hide', fig.show='hide'}
+# devtools::install_github("hadley/meifly")
+library(meifly)
+library(plotly)
+library(stringr)
+
+rescale01 <- function(x) (x - min(x, na.rm = TRUE)) / diff(range(x, na.rm = TRUE))
+
+# Fit all linear models to New Haven data --------------------------------------
+
+data(NewHavenResidential, package = "barcode")
+
+y <- scale(NewHavenResidential[,1])
+x <- NewHavenResidential[,-c(1,3)]
+x$livingArea <- scale(x$livingArea)
+x$size <- scale(x$size)
+x$bedrms <- scale(x$bedrms)
+x$bathrms <- scale(x$bathrms)
+models <- fitall(y, x)
+# ggobi(models, NewHavenResidential)
+
+# Summary statistics -----------------------------------------------------------
+
+model_sum <- models %>%
+  summary() %>%
+  tbl_df() %>%
+  gather(statistic, val, logL:adjR2) %>%
+  group_by(statistic) %>% 
+  mutate(stdval = rescale01(val), df = df - 1) %>%
+  group_by(statistic, df) %>% mutate(rank = min_rank(desc(val))) %>%
+  ungroup()
+
+mnames <- function(m) {
+  name <- str_c(names(coefficients(m))[-1], collapse=",")
+  return(name)
+}
+model_r2 <- models %>% 
+  plyr::ldply(mnames, .id = "model") %>% 
+  dplyr::rename(name=V1) %>%
+  right_join(model_sum, by = "model") %>%
+  filter(statistic == "R2")
+
+p <- ggplot(model_r2, aes(x=df, y=val, label=name)) +
+  geom_point() +
+  geom_line(data = filter(model_r2, rank == 1)) +
+  #facet_wrap(~statistic, ncol = 5) +
+  xlab("Degrees of Freedom") +
+  ylab("R2")
+```
+
+```{r echo=FALSE}
+ggplotly(p)
+```
+
+## Coefficients
+
+```{r echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, results='hide', fig.show='hide'}
+f_coef <- function(x) {
+  coef <- coefficients(x)
+  df <- matrix(rep(0, 8), ncol=8)
+  colnames(df)=c("(Intercept)","livingArea",
+         "size","zoneRM","zoneRS","acTypeNo AC", 
+         "bedrms","bathrms")
+    data.frame(coef=rep(0, 9))
+  df[colnames(df) %in% names(coef)] <- coef
+  colnames(df)[1] <- "Intercept"
+  return(data.frame(df))
+}
+model_coef <- models %>% 
+  map(f_coef) %>%
+  map_df(bind_rows) %>%
+  select(-Intercept) %>%
+  mutate(id = 1:nrow(.)) %>%
+  gather(var, val, -id) #%>%
+  #group_by(var) %>% 
+  #mutate(stdval = rescale(val))
+model_coef$var <- factor(model_coef$var, 
+                         levels=unique(model_coef$var)) 
+
+```
+
+```{r echo=FALSE}
+p <- ggplot(model_coef, aes(x = var, y = val,  
+                     key = id, text = id)) + 
+  #geom_jitter(width = 0.25, alpha = 0.5) +
+    geom_line(aes(group = id), alpha = 0.2) +
+    geom_point(alpha = 0.5, size = 0.001) +
+    theme_bw() + xlab("") + ylab("Standardised coefficients")
+ggplotly(p, tooltip = "text") %>% layout(dragmode = "select")
+```
+
+This needs some more work to get brushing going.
+
+## Random forest
+
+- Tree-level: each tree has its own training/test samples
+- Variable-level: each variable is ranked by the drop in model performance for each tree
+- Observation-level: for each observation we have the distribution of predictions across all trees
+
+## Neural networks
+
+$$P(y \in \textrm{class}_j | x_{1}, ..., x_{p}) = k \cdot \phi ( \alpha + \sum_{h=1}^s w_{hj} \phi (\alpha_h + \sum_{i=1}^p w_{ih} x_i ))$$
+
 ## My notes
 
 - show how to extract SVs
