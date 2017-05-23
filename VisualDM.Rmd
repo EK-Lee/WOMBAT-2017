@@ -86,7 +86,7 @@ df_lda <- lda(g~., data=df, prior=c(0.5, 0.5))
 df <- df %>% mutate(pred = as.vector(predict(df_lda)$x[,1]))
 p1 <- ggplot(df, aes(x=pred)) + 
   geom_histogram(breaks=seq(-3, 5, 0.5)) + 
-  geom_vline(xintercept=0, colour="red") +
+  geom_vline(xintercept=0, colour="#7570B3") +
   facet_wrap(~g, ncol=1) +
   ggtitle("Data in the model space")
 df_grid <- expand.grid(x1=seq(-10,10,0.2), x2=seq(-11,10,0.2)) 
@@ -126,7 +126,9 @@ class: inverse middle center
 
 This is a typical diagram used to explain how to build a Support Vector Machine. Is it M-in-DS or D-in-MS??
 
-![by cyc on wikipedia](svm.png)
+![produced by cyc, creative commons license, available on wikipedia](svm.pdf)
+
+Illustration produced by cyc, creative commons license, available on wikipedia
 
 ---
 
@@ -312,7 +314,7 @@ ggplot(best$hidden, aes(x, y)) +
 class: inverse middle 
 ## Your Turn
 
-1. In the formula for the model, what is s and p?
+1. In the formula for the model, what is $s$ and $p$?
 2. Sketch the neural network diagram that corresponds to the best model.
 
 ---
