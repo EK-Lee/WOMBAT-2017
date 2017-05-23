@@ -93,6 +93,12 @@ code {
   font-size: 1.5em;
   line-height: 1.0em;
 }
+.inverse ul li:before {
+  content: "\f080";
+  font-family: "FontAwesome";
+  margin-right: 10px;
+  color: #D95F02;
+}
 
 /* Slide-specific styling */
 #slide-inverse .footnote {
