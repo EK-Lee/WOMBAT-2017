@@ -245,10 +245,8 @@ p <- ggplot(model_coef, aes(x = var, y = val,
     geom_line(aes(group = id), alpha = 0.2) +
     geom_point(alpha = 0.5, size = 0.001) +
     theme_bw() + xlab("") + ylab("Standardised coefficients")
-ggplotly(p, tooltip = "text") %>% layout(dragmode = "select")
+ggplotly(p, tooltip = c("var", "val", "key")) %>% layout(dragmode = "select")
 ```
-
-This needs some more work to get brushing going.
 
 ---
 
@@ -608,6 +606,33 @@ Example shiny app for a projection pursuit forest:
 
 ---
 
+## Smaller set of linked plots
+
+The file ```app.R``` in the ```pcp-mds``` directory contains interactively linked plots, a parallel coordinate plot and an MDS plot of the olive data. If you open the ```app.R``` file in RStudio you will be able to click on a point or profile, and the focus will be placed on this observation.
+
+![](pcp-mds.png)
+
+---
+
+## Linked plots
+
+Explanation of components to make linking happen
+
+---
+
+## Your turn
+
+Make a new shiny app to link the two plots from the "All Models Example" from slides 11-12 (the scatterplot of R2 vs df, and the parallel coordinate plot of the coefficients)
+
+---
+
+## Extracting components of model
+
+Use SVM as an example
+
+---
+
+
 ## Supervised Classification
 
 * Checking assumptions
@@ -670,7 +695,7 @@ Predicting grid and viewing with tour
 
 - Wickham, Cook, Hofmann (2015) Visualizing statistical models: Removing the blindfold, Statistical Analysis and Data Mining, (http://dx.doi.org/10.1002/sam.11271)
 - Cook and Swayne (2007) Interactive and Dynamic Graphics for Data Analysis: With Examples Using R and GGobi (http://www.ggobi.org/book/)
-
+- Cheatsheets for rmarkdown, ggplot2, shiny
 
 ---
 

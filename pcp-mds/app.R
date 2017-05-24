@@ -33,11 +33,12 @@ ui <- fluidPage(
    # Application title
    titlePanel("Parallel coordinate plot linked to MDS plot"),
    fluidRow(column(
-     width = 11,
+     width = 6, align = "center", 
      plotlyOutput("parallel", height = 400)
    ), column(
-     width = 4, align = "center", offset = 2,
-     plotlyOutput("mdsplot", height = 400)
+     width = 4, 
+     align = "center", 
+     plotlyOutput("mdsplot", width = 400, height = 400)
    ))
 )
 
@@ -56,6 +57,20 @@ server <- function(input, output) {
     fill[selected] <- TRUE
     rv$data$fill <- fill
   }
+  
+  observeEvent(event_data("plotly_selected"),{
+    selected <- rv$data$ids %in% event_data("plotly_selected")$key
+    updateRV(selected)
+  })
+  
+  observeEvent(event_data("plotly_click"),{
+    k <- event_data("plotly_click")$key
+    if (any(k %in% unique(rv$data$ids))){
+      selected <- rv$data$ids %in% k
+    }
+    
+    updateRV(selected)
+  })
   
   output$parallel <- renderPlotly({
     yy <- rv$data$ids[rv$data$fill]
