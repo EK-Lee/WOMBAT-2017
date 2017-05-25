@@ -439,7 +439,9 @@ class: inverse middle
 library(tourr)
 data(olive)
 olive$region <- factor(olive$region, levels=1:3, labels=c("South", "Sardinia", "North"))
-ggparcoord(olive, columns=3:10, groupColumn=1, order="anyClass")
+ggparcoord(olive, columns=3:10, groupColumn=1,
+           order="anyClass") + 
+  scale_colour_brewer("", palette="Dark2")
 ```
 
 ---
@@ -449,7 +451,10 @@ ggparcoord(olive, columns=3:10, groupColumn=1, order="anyClass")
 library(tourr)
 data(olive)
 olive$region <- factor(olive$region, levels=1:3, labels=c("South", "Sardinia", "North"))
-ggparcoord(olive, columns=3:10, groupColumn=1, order="anyClass", boxplot = TRUE, alphaLines = 0.01)
+ggparcoord(olive, columns=3:10, groupColumn=1,
+           order="anyClass", boxplot = TRUE, 
+           alphaLines = 0.01) + 
+  scale_colour_brewer("", palette="Dark2")
 ```
 
 ---
@@ -546,7 +551,7 @@ animate_xy(olive[,3:10], col=col)
 ## Dimension reduction
 
 * Principal component analysis (PCA): reduce the dimension by making linear combinations of the original variables, that capture as much of the original variance-covariance as possible. Also called "sphering".
-* Multidimensional scaling (MDS): A super-set of PCA that enables creating low-dimensional mapping of data points to best match their distances in the original $p$-space. Often used, when the starting point is purely a distance matrix.  
+* Multidimensional scaling (MDS): A super-set of PCA that enables creating low-dimensional mapping of data points to best match their distances in the original $p$-space. Often used, when the starting point is purely a distance matrix. There are many variations, e.g. sammon and a recent method, t-SNE could be considered related.
 * Projection pursuit (PP): A super-set of PCA which creates linear combinations of orginal variables, that optimise something other than variance-covariance: e.g. holes, outliers, class differences
 * Linear discriminant analysis (LDA) is also a useful method for finding a low-dimensional projection revealing group differences. 
 
@@ -561,14 +566,24 @@ olive <- olive %>% mutate(PC1=olive_pca$x[,1],
 p1 <- ggplot(olive, aes(x=PC1, y=PC2, color=region)) +
   geom_point() + theme(aspect.ratio=1) +
   scale_colour_brewer("", palette="Dark2")
-olive_mds <- cmdscale(dist(apply(olive[,3:10], 2, scale)), 
-                      k=2, x.ret=TRUE)
-olive <- olive %>% mutate(MDS1=olive_mds$points[,1],
-                          MDS2=olive_mds$points[,2])
-p2 <- ggplot(olive, aes(x=MDS1, y=MDS2, color=region)) +
+library(tsne)
+tsne_olive = tsne(olive[,3:10], perplexity=50)
+olive <- olive %>% mutate(TSNE1=tsne_olive[,1],
+                          TSNE2=tsne_olive[,2])
+p2 <- ggplot(olive, aes(x=TSNE1, y=TSNE2, color=region)) +
   geom_point() + theme(aspect.ratio=1) +
   scale_colour_brewer("", palette="Dark2")
-PP <- data.frame(PP1 = as.matrix(olive[,3:10]) %*% as.matrix(c(0.075, -0.372, 0.113, -0.313, 0.208, 0.102, 0.047, 0.830)), PP2 = as.matrix(olive[,3:10]) %*% as.matrix(c(-0.184, 0.737, -0.299, 0.147, 0.389, 0.233, 0.095, 0.312)))
+proj <- matrix(c(0.684, 0.065,  
+0.018,  0.395,  
+-0.036,  -0.017, 
+0.442,  -0.060,  
+-0.415,  0.040,  
+-0.108,  0.344,  
+-0.385,  -0.186,  
+-0.052,  0.825  ), ncol=2, byrow=T)
+PP <- as.matrix(apply(olive[,3:10], 2, scale)) %*% proj
+colnames(PP) <- c("PP1", "PP2")
+PP <- data.frame(PP)
 olive <- olive %>% mutate(PP1=PP$PP1[1:572],
                           PP2=PP$PP2[1:572])
 p3 <- ggplot(olive, aes(x=PP1, y=PP2, color=region)) +
@@ -588,6 +603,22 @@ grid.arrange(p1, p2, p3, p4, ncol=2)
 quartz()
 animate_xy(olive[, 3:10], tour_path=guided_tour(lda_pp(olive[,1])), 
            sphere = FALSE, col=col)
+proj <- matrix(c(0.684, 0.065,  
+0.018,  0.395,  
+-0.036,  -0.017, 
+0.442,  -0.060,  
+-0.415,  0.040,  
+-0.108,  0.344,  
+-0.385,  -0.186,  
+-0.052,  0.825  ), ncol=2, byrow=T)
+PP <- as.matrix(apply(olive[,3:10], 2, scale)) %*% proj
+colnames(PP) <- c("PP1", "PP2")
+PP <- data.frame(PP)
+olive <- olive %>% mutate(PP1=PP$PP1[1:572],
+                          PP2=PP$PP2[1:572])
+ggplot(olive, aes(x=PP1, y=PP2, color=region)) +
+  geom_point() + theme(aspect.ratio=1) +
+  scale_colour_brewer("", palette="Dark2")
 
 ```
 
