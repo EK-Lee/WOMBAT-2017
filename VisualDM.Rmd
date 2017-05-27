@@ -23,6 +23,23 @@ opts_chunk$set(
 )
 ```
 
+```{r cache=FALSE}
+library(tidyverse)
+library(stringr)
+library(gridExtra)
+library(mvtnorm)
+library(MASS)
+library(e1071)
+library(randomForest)
+library(nnet)
+library(meifly)
+library(plotly)
+library(GGally)
+library(tourr)
+library(RColorBrewer)
+library(tsne)
+```
+
 ## Conceptual framework
 
 - Visual methods for high-dimensional data are well-developed and understood. Toolbox includes:
@@ -54,17 +71,15 @@ opts_chunk$set(
 ## Model in the data space
 
 ```{r}
-library(tidyverse)
-library(gridExtra)
-df <- data.frame(x=runif(100))
-df <- df %>% mutate(y=c(5+3*x[-100]+rnorm(99), 15))
-df_lm <- lm(y~x, data=df)
-df <- df %>% mutate(res = residuals(df_lm))
-p1 <- ggplot(df, aes(x=res)) + geom_histogram(binwidth=0.5) + 
+simd1 <- data.frame(x=runif(100))
+simd1 <- simd1 %>% mutate(y=c(5+3*x[-100]+rnorm(99), 15))
+simd1_lm <- lm(y~x, data=simd1)
+simd1 <- simd1 %>% mutate(res = residuals(simd1_lm))
+p1 <- ggplot(simd1, aes(x=res)) + geom_histogram(binwidth=0.5) + 
   ggtitle("Data in the model space") +
   xlab("Residuals") + theme(aspect.ratio=1)
-coefs <- coefficients(df_lm)
-p2 <- ggplot(df, aes(x=x, y=y)) + geom_point() +
+coefs <- coefficients(simd1_lm)
+p2 <- ggplot(simd1, aes(x=x, y=y)) + geom_point() +
   geom_abline(intercept=coefs[1], slope=coefs[2]) +
   ggtitle("Model in the data space") + 
   theme(aspect.ratio=1)
@@ -77,23 +92,22 @@ grid.arrange(p1, p2, ncol=2)
 ## Model in the data space
 
 ```{r}
-library(MASS)
-library(mvtnorm)
 g1 <- rmvnorm(n=120, mean=c(1,2), sigma=matrix(c(4,2,2,3), ncol=2)) 
 g2 <- rmvnorm(n=80, mean=c(-1,-3), sigma=matrix(c(6,-3,-3,6), ncol=2))
-df <- data.frame(x1=c(g1[,1], g2[,1]), x2=c(g1[,2], g2[,2]), g=c(rep("A", 120), rep("B", 80)))
-df_lda <- lda(g~., data=df, prior=c(0.5, 0.5))
-df <- df %>% mutate(pred = as.vector(predict(df_lda)$x[,1]))
-p1 <- ggplot(df, aes(x=pred)) + 
+simd2 <- data.frame(x1=c(g1[,1], g2[,1]), x2=c(g1[,2], g2[,2]), g=c(rep("A", 120), rep("B", 80)))
+simd2_lda <- lda(g~., data=simd2, prior=c(0.5, 0.5))
+simd2 <- simd2 %>% 
+  mutate(pred = as.vector(predict(simd2_lda)$x[,1]))
+p1 <- ggplot(simd2, aes(x=pred)) + 
   geom_histogram(breaks=seq(-3, 5, 0.5)) + 
   geom_vline(xintercept=0, colour="#7570B3") +
   facet_wrap(~g, ncol=1) +
   ggtitle("Data in the model space")
-df_grid <- expand.grid(x1=seq(-10,10,0.2), x2=seq(-11,10,0.2)) 
-df_grid$pred <- predict(df_lda, df_grid)$class
-p2 <- ggplot(df_grid, aes(x=x1, y=x2, colour=pred)) + 
+simd2_grid <- expand.grid(x1=seq(-10,10,0.2), x2=seq(-11,10,0.2)) 
+simd2_grid$pred <- predict(simd2_lda, simd2_grid)$class
+p2 <- ggplot(simd2_grid, aes(x=x1, y=x2, colour=pred)) + 
   geom_point(alpha=0.1) +
-  geom_point(data=df, aes(x=x1, y=x2, colour=g), 
+  geom_point(data=simd2, aes(x=x1, y=x2, colour=g), 
              shape=4, size=3, inherit.aes = FALSE) +
   scale_colour_brewer("", palette="Dark2") +
   ggtitle("Model in the data space") + 
@@ -156,10 +170,6 @@ Illustration produced by cyc, creative commons license, available on wikipedia
 
 ```{r results='hide'}
 # devtools::install_github("hadley/meifly")
-library(meifly)
-library(plotly)
-library(stringr)
-
 rescale01 <- function(x) (x - min(x, na.rm = TRUE)) / diff(range(x, na.rm = TRUE))
 
 # Fit all linear models to New Haven data --------------------------------------
@@ -256,8 +266,6 @@ ggplotly(p, tooltip = c("var", "val", "key")) %>% layout(dragmode = "select")
 $$P(y \in \textrm{class}_j | x_{1}, ..., x_{p}) = k \cdot \phi ( \alpha + \sum_{h=1}^s w_{hj} \phi (\alpha_h + \sum_{i=1}^p w_{ih} x_i ))$$
 
 ```{r}
-library(nnet)
-library(readr)
 w <- read_csv("wiggly.csv")[ ,2:4]
 w <- transform(w, class = factor(class, labels = c("A", "B")))
 sqr <- theme(aspect.ratio = 1)
@@ -327,7 +335,7 @@ class: inverse middle
 
 ## Model comparison
 
-```{r}
+```{r fig.height=5}
 qual <- unique(many[, c("value", "accuracy", "nodes", "id")])
 ggplot(data = qual, aes(x=accuracy, y=value)) + 
   geom_point() +
@@ -417,7 +425,6 @@ ggplot(df_grid, aes(x=x1, y=x2, colour=pred)) +
 ## Scatterplot matrix
 
 ```{r}
-library(GGally)
 ggpairs(NewHavenResidential, columns=c(1,2,4,5))
 ```
 
@@ -436,7 +443,6 @@ class: inverse middle
 ## Parallel coordinate plot
 
 ```{r}
-library(tourr)
 data(olive)
 olive$region <- factor(olive$region, levels=1:3, labels=c("South", "Sardinia", "North"))
 ggparcoord(olive, columns=3:10, groupColumn=1,
@@ -448,7 +454,6 @@ ggparcoord(olive, columns=3:10, groupColumn=1,
 ## Side-by-side boxplots
 
 ```{r}
-library(tourr)
 data(olive)
 olive$region <- factor(olive$region, levels=1:3, labels=c("South", "Sardinia", "North"))
 ggparcoord(olive, columns=3:10, groupColumn=1,
@@ -523,7 +528,8 @@ class: inverse middle
 
 ```{r eval=FALSE}
 data(ratcns)
-ggparcoord(ratcns, columns=1:9, alphaLines=0.5, scale="globalminmax")
+ggparcoord(ratcns, columns=1:9, alphaLines=0.5,
+           scale="globalminmax")
 ggparcoord(ratcns, columns=1:9, boxplot=TRUE,
            alphaLines=0, scale="globalminmax")
 ```
@@ -539,7 +545,6 @@ class: inverse middle
 - Are there any outliers?
 
 ```{r eval=FALSE}
-library(RColorBrewer)
 pal <- brewer.pal(length(levels(olive$region)), "Dark2")
 col <- pal[as.numeric(olive$region)]
 quartz()
@@ -566,7 +571,6 @@ olive <- olive %>% mutate(PC1=olive_pca$x[,1],
 p1 <- ggplot(olive, aes(x=PC1, y=PC2, color=region)) +
   geom_point() + theme(aspect.ratio=1) +
   scale_colour_brewer("", palette="Dark2")
-library(tsne)
 tsne_olive = tsne(olive[,3:10], perplexity=50)
 olive <- olive %>% mutate(TSNE1=tsne_olive[,1],
                           TSNE2=tsne_olive[,2])
@@ -639,30 +643,99 @@ Example shiny app for a projection pursuit forest:
 
 ## Smaller set of linked plots
 
-The file ```app.R``` in the ```pcp-mds``` directory contains interactively linked plots, a parallel coordinate plot and an MDS plot of the olive data. If you open the ```app.R``` file in RStudio you will be able to click on a point or profile, and the focus will be placed on this observation.
+The file `app.R` in the `pcp-mds` directory contains interactively linked plots, a parallel coordinate plot and an MDS plot of the olive data. If you open the `app.R` file in RStudio you will be able to click on a point or profile, and the focus will be placed on this observation.
 
-![](pcp-mds.png)
+![Place holder for illustrating linked plots](pcp-mds.png)
+
+Key parts of the app are the `ui` and `server` functions.
 
 ---
+
+## Your Turn
+
+- Way back on slides 11-12, we looked at scatterplot of $R^2$ vs degrees of freedon, and a parallel coordinate plot of the coefficients for the "All Models Example"
+- Following the `pcp-mds` example make these two plots linked. 
+
+---
+
+
 
 ## Linked plots
 
 Explanation of components to make linking happen
 
----
-
-## Your turn
-
-Make a new shiny app to link the two plots from the "All Models Example" from slides 11-12 (the scatterplot of R2 vs df, and the parallel coordinate plot of the coefficients)
 
 ---
+
 
 ## Extracting components of model
 
-Use SVM as an example
+Support vector machine model: 
+
+- find points which define the boundary between two classes (support vectors)
+- boundary plane defined by these points
+- predicted values are data projected onto the norm of this plane
+
+```{r results='tidy', cache=FALSE}
+g1 <- rmvnorm(n=120, mean=c(1,2), sigma=matrix(c(4,2,2,3), ncol=2)) 
+g2 <- rmvnorm(n=80, mean=c(-1,-3), sigma=matrix(c(3,-1.5,-1.5,3), ncol=2))
+simd3 <- data.frame(x1=c(g1[,1], g2[,1]), 
+                    x2=c(g1[,2], g2[,2]), 
+                    g=c(rep("A", 120), rep("B", 80)))
+simd3 <- simd3 %>% mutate_at(vars(x1,x2), funs(rescale01(.)))
+
+simd3_svm <- svm(g~., data=simd3, kernel="linear", scale=FALSE)
+simd3_svm
+```
+
+```{r eval=FALSE}
+simd3_svm <- svm(g~., data=simd3, kernel="linear", scale=FALSE)
+simd3_svm
+```
 
 ---
 
+## Support vectors
+
+These are the coefficients' weight each support vector, `simd3_svm$coefs`.
+
+```{r results='tidy', cache=FALSE}
+options(digits=2)
+as.vector(simd3_svm$coefs)
+```
+
+Most are bounded (1.00 or -1.00). 
+
+```{r cache=FALSE}
+simd3_grid <- expand.grid(x1=seq(0, 1, 0.01), x2=seq(0, 1, 0.01)) 
+simd3_grid$pred <- predict(simd3_svm, simd3_grid[,1:2])
+simd3_svs <- data.frame(sv=simd3_svm$SV, wgt=simd3_svm$coefs)
+```
+
+
+---
+
+## Show SVs and model in data space
+
+```{r fig.width=5, fig.height=3, fig.align='center', cache=FALSE}
+ggplot(simd3_grid) + 
+  geom_point(aes(x=x1, y=x2, colour=pred), alpha=0.1) +
+  geom_point(data=simd3, aes(x=x1, y=x2, colour=g), 
+             shape=4, size=3) + 
+  scale_colour_brewer("", palette="Dark2") +
+  geom_point(data=filter(simd3_svs, abs(wgt) < 1), 
+             aes(x=sv.x1, y=sv.x2), colour="#7570B3", 
+             shape=16, size=5, alpha=0.5) +
+  theme_bw() +
+  theme(aspect.ratio=1)
+```
+
+---
+
+## More than two variables
+
+- Videos
+- Code using tourr
 
 ## Supervised Classification
 
@@ -732,9 +805,10 @@ Predicting grid and viewing with tour
 
 ## Acknowledgements
 
-* Slides powered by the R package [xaringan](https://github.com/yihui/xaringan)
+- Slides powered by the R package [xaringan](https://github.com/yihui/xaringan)
   for [remark.js](https://remarkjs.com/) and [R Markdown](https://rmarkdown.rstudio.com)
-    + The source files to reproduce the slides are available [here](https://github.com/EK-Lee/WOMBAT-2017).
-* The R packages used for the slides : 
+- The source files to reproduce the slides are available at [https://github.com/EK-Lee/WOMBAT-2017](https://github.com/EK-Lee/WOMBAT-2017).
+- The R packages used for the slides: `tidyverse`,
+`stringr`, `gridExtra`, `mvtnorm`, `MASS`, `e1071`, `randomForest`, `nnet`, `meifly`, `plotly`, `GGally`, `tourr`, `RColorBrewer`, `tsne`, and their dependencies.
 
-* <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+<a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
