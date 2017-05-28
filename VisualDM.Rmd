@@ -375,7 +375,74 @@ ggplot(contours, aes(x, y)) + sqr +
 
 ---
 
+## Tree
 
+- Whole tree: explore the structure of tree and how data divided
+- Node-level: explore each node with subset of data
+ 
+---
+
+## rpart: whole tree
+
+```{r}
+fish<-read.csv("fishcatch.csv")
+library(rpart)
+library(partykit)
+library(ggplot2)
+library(tidyverse)
+tree.result<-rpart(Species~.,data= fish[,-1])
+plot(as.party(tree.result))
+``` 
+
+---
+
+## rpart:Node-level 
+
+
+```{r fig.height=3.5}
+TP1<- fish %>% 
+        filter(height>=33.9) %>%
+        ggplot(aes(x=height,y=length3,color=Species,shape=Species)) +
+           geom_point(size=3)+ggtitle("Node 2") + 
+           geom_hline(yintercept=29.5,color="red")
+
+TP2<- fish %>% 
+        filter(height<33.9 & height>=20.1) %>%
+        ggplot(aes(x=height,y=width,color=Species,shape=Species)) + 
+           geom_point(size=3)+ggtitle("Node 6") +     
+           geom_hline(yintercept=14.4,color="red")
+
+TP3<- fish %>% 
+        filter(height<20.1) %>%
+        ggplot(aes(x=height,y=weight,color=Species,shape=Species))+
+          geom_point(size=3)+ ggtitle("Node 9") +         
+          geom_hline(yintercept=109.95,,color="red")
+
+grid.arrange(TP1, TP2, TP3,ncol=3)
+``` 
+
+
+---
+## PPtree: Whole tree
+
+```{r}
+library(PPtreeViz)
+PPtree.result<-PPTreeclass(Species~.,data= fish[,-1])
+plot(PPtree.result)
+```
+
+---
+## PPtree: Node level
+
+```{r fig.height=3.5}
+PPclassNodeViz(PPtree.result,node.id=1,Rule=1)
+```
+
+```{r fig.height=3.5}
+PPclassNodeViz(PPtree.result,node.id=5,Rule=1)
+```
+
+---
 ## Random forest
 
 - Tree-level: each tree has its own training/test samples
@@ -383,7 +450,6 @@ ggplot(contours, aes(x, y)) + sqr +
 - Observation-level: for each observation we have the distribution of predictions across all trees
 
 We will come back to this later, because the area is very rich.
-
 
 ---
 
