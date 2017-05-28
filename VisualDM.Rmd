@@ -375,7 +375,74 @@ ggplot(contours, aes(x, y)) + sqr +
 
 ---
 
+## Tree
 
+- Whole tree
+- Node-level
+ 
+---
+
+## rpart: Whole tree
+
+```{r}
+fish<-read.csv("fishcatch.csv")
+library(rpart)
+library(partykit)
+library(ggplot2)
+library(tidyverse)
+tree.result<-rpart(Species~.,data= fish[,-1])
+plot(as.party(tree.result))
+``` 
+
+---
+
+## rpart: Node-level 
+
+
+```{r fig.height=3.5}
+TP1<- fish %>% 
+        filter(height>=33.9) %>%
+        ggplot(aes(x=height,y=length3,color=Species,shape=Species)) +
+           geom_point(size=3)+ggtitle("Node 2") + 
+           geom_hline(yintercept=29.5,color="red")
+
+TP2<- fish %>% 
+        filter(height<33.9 & height>=20.1) %>%
+        ggplot(aes(x=height,y=width,color=Species,shape=Species)) + 
+           geom_point(size=3)+ggtitle("Node 6") +     
+           geom_hline(yintercept=14.4,color="red")
+
+TP3<- fish %>% 
+        filter(height<20.1) %>%
+        ggplot(aes(x=height,y=weight,color=Species,shape=Species))+
+          geom_point(size=3)+ ggtitle("Node 9") +         
+          geom_hline(yintercept=109.95,,color="red")
+
+grid.arrange(TP1, TP2, TP3,ncol=3)
+``` 
+
+
+---
+## PPtree: Whole tree
+
+```{r}
+library(PPtreeViz)
+PPtree.result<-PPTreeclass(Species~.,data= fish[,-1])
+plot(PPtree.result)
+```
+
+---
+## PPtree: Node level
+
+```{r fig.height=3.5}
+PPclassNodeViz(PPtree.result,node.id=1,Rule=1)
+```
+
+```{r fig.height=3.5}
+PPclassNodeViz(PPtree.result,node.id=5,Rule=1)
+```
+
+---
 ## Random forest
 
 - Tree-level: each tree has its own training/test samples
@@ -384,8 +451,95 @@ ggplot(contours, aes(x, y)) + sqr +
 
 We will come back to this later, because the area is very rich.
 
+---
+
+## tree-level
+```{r}
+library(randomForest)
+rf.result<-randomForest(Species~.,fish[,-1],
+                        importance=TRUE,proximity=TRUE)
+
+plot.data<-as_tibble(rf.result$err.rate) %>% 
+  gather(Bream,Parkki,Perch,Pike,Roach,Smelt,Whitewish,
+         key="Species",value="prop") 
+ggplot(plot.data,aes(x=Species,y=prop))+
+  geom_boxplot()+
+  geom_point(alpha=0.2)+
+  geom_jitter(width=0.2,alpha=0.2)+
+  ylab("error rate")
+```
 
 ---
+## Variable-level
+
+```{r}
+temp.importance <- data.frame(variable=rownames(rf.result$importance),
+                              rf.result$importance)
+
+plot.data<-as_tibble(temp.importance) %>% 
+  gather(Bream,Parkki,Perch,Pike,Roach,Smelt,Whitewish,
+         key="Species",value="importance") 
+VP1<-ggplot(plot.data,aes(x=variable,y=importance,color=Species,group=Species))+
+  geom_line(size=2)
+
+VP2<-ggplot(plot.data,aes(x=Species,y=importance,color=variable,group=variable))+
+  geom_line(size=2)
+  
+VP3<-ggplot(plot.data,aes(x=variable,y=Species))+geom_tile(aes(fill=importance))+
+  scale_fill_gradientn(colors=c("white","blue"))
+ 
+grid.arrange(VP1,VP2,VP3,ncol=3)  
+```
+
+---
+## observation-level
+
+```{r}
+temp.confusion<-rf.result$confusion[,1:7]
+diag(temp.confusion)<-0
+temp.confusion<-data.frame(obs=rownames(rf.result$confusion),
+                           temp.confusion)
+
+plot.data<-as_tibble(temp.confusion) %>% 
+  gather(Bream,Parkki,Perch,Pike,Roach,Smelt,Whitewish,
+         key="pred",value="error") 
+
+RFP1<-ggplot(plot.data,aes(x=obs,y=pred))+geom_tile(aes(fill=error))+
+  scale_fill_gradientn(colors=c("white","blue"))
+
+temp.votes<-data.frame(obsID=1:nrow(fish),rf.result$votes)
+
+plot.data<-as_tibble(temp.votes) %>% 
+  gather(Bream,Parkki,Perch,Pike,Roach,Smelt,Whitewish,
+         key="Species",value="votes") 
+
+RFP2<-ggplot(plot.data,aes(x=Species,y=obsID)) +
+        geom_tile(aes(fill=votes)) +
+        scale_fill_gradientn(colors=c("white","blue")) 
+
+grid.arrange(RFP1, RFP2,ncol=2)
+```
+
+---
+## observation-level
+
+```{r}
+
+temp.proximity<-rf.result$proximity
+temp.proximity<-data.frame(obs1=1:nrow(fish),
+                           temp.proximity)
+
+plot.data<-as_tibble(temp.proximity) %>% 
+              gather(X1:X159, key="obs2.t",value="proximity") %>% 
+              separate(obs2.t,into=c("X","obs2"),sep=1) %>%
+              mutate(obs2=as.numeric(obs2))
+ggplot(plot.data,aes(x=obs1,y=obs2))+geom_tile(aes(fill=proximity))+
+  scale_fill_gradientn(colors=c("white","blue"))+labs(x="",y="")
+
+```
+
+---
+
 
 ## Visualisation Toolbox
 
