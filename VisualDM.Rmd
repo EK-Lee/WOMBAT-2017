@@ -513,7 +513,7 @@ $$X = \left[ \begin{array}{rrrr}
 ## Tours focus on shapes
 
 - From example 1, you should see 4 clusters. Based on (1) a group separates out in a fleeting moment, (2) following the motion path of the groups, three are easily seen, and eventually largest group breaks into 2. The clusters are primarily spherical.
-- In example 2, the two groups are almost always shifted fro each other. Never a gap between the two, and some blue and orange tend to hang with the other group. The clusters are not spherical, and form different shapes in different projections. 
+- In example 2, the two groups are almost always shifted from each other. Never a gap between the two, and some blue and orange tend to hang with the other group. The clusters are not spherical, and form different shapes in different projections. 
 - Shape can be important for making distributional assumptions about data
 
 ---
@@ -651,22 +651,19 @@ Key parts of the app are the `ui` and `server` functions.
 
 ---
 
+## Linked plots
+
+- `ui`: here there is very little user interface in this app. The layout of the two plots is done here.
+- `server`: this part makes the two plots, re-does them with plotly, with the linking variable set. The event handling is defined, and the behaviour of the plots when the user selects points.
+
+---
+
 ## Your Turn
 
 - Way back on slides 11-12, we looked at scatterplot of $R^2$ vs degrees of freedon, and a parallel coordinate plot of the coefficients for the "All Models Example"
 - Following the `pcp-mds` example make these two plots linked. 
 
 ---
-
-
-
-## Linked plots
-
-Explanation of components to make linking happen
-
-
----
-
 
 ## Extracting components of model
 
@@ -677,8 +674,8 @@ Support vector machine model:
 - predicted values are data projected onto the norm of this plane
 
 ```{r results='tidy', cache=FALSE}
-g1 <- rmvnorm(n=120, mean=c(1,2), sigma=matrix(c(4,2,2,3), ncol=2)) 
-g2 <- rmvnorm(n=80, mean=c(-1,-3), sigma=matrix(c(3,-1.5,-1.5,3), ncol=2))
+g1 <- rmvnorm(n=120, mean=c(2,3), sigma=matrix(c(4,2,2,3), ncol=2)) 
+g2 <- rmvnorm(n=80, mean=c(-2,-3), sigma=matrix(c(3,-2,-2,3), ncol=2))
 simd3 <- data.frame(x1=c(g1[,1], g2[,1]), 
                     x2=c(g1[,2], g2[,2]), 
                     g=c(rep("A", 120), rep("B", 80)))
@@ -734,25 +731,28 @@ ggplot(simd3_grid) +
 
 ## More than two variables
 
-- Videos
-- Code using tourr
+The process remains the same in higher dimensions. 
+- To examine boundaries, generate grid covering domain, and predict
+- If dimension is too large, keep only points in the grid within a small distance of the boundary
+- For complex boundaries, focus on one group at a time, keeping overall scale fixed
 
-## Supervised Classification
+<iframe src="https://player.vimeo.com/video/125405961" width="340" height="277" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
 
-* Checking assumptions
-* Examining misclassifications
-* Variable importance
-* Visualising boundaries
-* Exploring ensembles
+<iframe src="https://player.vimeo.com/video/125405962" width="340" height="277" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
 
 ---
 
-## My notes
+## Different aspects of SVM fit
 
-- show how to extract SVs
-- forest components
+<iframe src="https://player.vimeo.com/video/219242389" width="640" height="480" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>
 
-## Outline
+---
+
+## Exploring misclassifications
+
+---
+
+## Summary
 
 * The Toolbox: Grammar of graphics, multivariate data plots, dimension reduction, interactive graphics
 * Supervised Classification: Checking assumptions, examining misclassifications, variable importance, visualising boundaries, exploring ensembles
@@ -763,43 +763,12 @@ proximity matrix, oblique forest shiny app
 * Neural networks: Components
 * High-dimension, small sample size
 
-## Toolbox
-
-* Grammar of graphics
-* Multivariate data plots 
-* Dimension reduction 
-* Interactive graphics
-
-
-## Checking assumptions
-
-* LDA: equal variance-covariances
-* 
-
-## Examining misclassifications
-
-Linking confusion table with data plots
-
-## Variable importance
-
-Ordering par coords by importance
-
-## Visualising boundaries
-
-Predicting grid and viewing with tour
-
-## Exploring ensembles
-
-* Diagnostics
-* Pruning
-
-## Trees
-
+---
 ## Sources
 
 - Wickham, Cook, Hofmann (2015) Visualizing statistical models: Removing the blindfold, Statistical Analysis and Data Mining, (http://dx.doi.org/10.1002/sam.11271)
 - Cook and Swayne (2007) Interactive and Dynamic Graphics for Data Analysis: With Examples Using R and GGobi (http://www.ggobi.org/book/)
-- Cheatsheets for rmarkdown, ggplot2, shiny
+- Cheatsheets for [rmarkdown](https://www.rstudio.com/wp-content/uploads/2016/03/rmarkdown-cheatsheet-2.0.pdf), [ggplot2](https://www.rstudio.com/wp-content/uploads/2016/11/ggplot2-cheatsheet-2.1.pdf), [shiny](https://www.rstudio.com/wp-content/uploads/2016/01/shiny-cheatsheet.pdf)
 
 ---
 
@@ -808,7 +777,6 @@ Predicting grid and viewing with tour
 - Slides powered by the R package [xaringan](https://github.com/yihui/xaringan)
   for [remark.js](https://remarkjs.com/) and [R Markdown](https://rmarkdown.rstudio.com)
 - The source files to reproduce the slides are available at [https://github.com/EK-Lee/WOMBAT-2017](https://github.com/EK-Lee/WOMBAT-2017).
-- The R packages used for the slides: `tidyverse`,
-`stringr`, `gridExtra`, `mvtnorm`, `MASS`, `e1071`, `randomForest`, `nnet`, `meifly`, `plotly`, `GGally`, `tourr`, `RColorBrewer`, `tsne`, and their dependencies.
+- The R packages used for the slides: `knitr`, `rmarkdown`, `tidyverse`, `stringr`, `gridExtra`, `mvtnorm`, `MASS`, `e1071`, `randomForest`, `nnet`, `caret`, `meifly`, `plotly`, `GGally`, `tourr`, `RColorBrewer`, `PPtreeVis`, `tsne`, `barcode` and their dependencies.
 
 <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
