@@ -655,7 +655,7 @@ Example shiny app for a projection pursuit forest:
 Using `rpart` library to fit the tree, and the `plot` function of `partykit` library to display the tree.
 
 ```{r fig.height=5, fig.width=18}
-fish <- read.csv("fishcatch.csv")
+fish <- read_csv("fishcatch.csv")
 library(rpart)
 library(partykit)
 library(ggplot2)
@@ -826,57 +826,63 @@ VP2 <- ggplot(fish_vimp, aes(x=Species, y=importance,
   
 VP3 <- ggplot(fish_vimp, aes(x=variable, y=Species)) + 
   geom_tile(aes(fill=importance)) +
-  scale_fill_gradientn(colors=c("white","blue")) +
+  scale_fill_gradientn(colors=c("white", "#00441b")) +
   theme(legend.position="bottom")
  
 grid.arrange(VP1, VP2, VP3, ncol=3)  
 ```
 
 ---
-## observation-level
 
-```{r}
-temp.confusion <- fish_rf$confusion[,1:7]
-diag(temp.confusion) <- 0
-temp.confusion <- data.frame(obs=rownames(fish_rf$confusion),
-                           temp.confusion)
+class: inverse middle
 
-plot.data <- as_tibble(temp.confusion) %>% 
-  gather(Bream,Parkki,Perch,Pike,Roach,Smelt,Whitewish,
-         key="pred",value="error") 
+## Your Turn
 
-RFP1<-ggplot(plot.data,aes(x=obs,y=pred))+geom_tile(aes(fill=error))+
-  scale_fill_gradientn(colors=c("white","blue"))
-
-temp.votes<-data.frame(obsID=1:nrow(fish), fish_rf$votes)
-
-plot.data<-as_tibble(temp.votes) %>% 
-  gather(Bream,Parkki,Perch,Pike,Roach,Smelt,Whitewish,
-         key="Species",value="votes") 
-
-RFP2<-ggplot(plot.data,aes(x=Species,y=obsID)) +
-        geom_tile(aes(fill=votes)) +
-        scale_fill_gradientn(colors=c("white","blue")) 
-
-grid.arrange(RFP1, RFP2,ncol=2)
-```
+In each of the previous displays, the focus is different. 
+- How are variables mapped to graphical elements in each?
+- For each display: What is easy to read off? What is hard? 
 
 ---
-## observation-level
 
-```{r}
+## Random forest: observation level exploring votes
 
-temp.proximity<-fish_rf$proximity
-temp.proximity<-data.frame(obs1=1:nrow(fish),
-                           temp.proximity)
+Each point is an observation.
 
-plot.data<-as_tibble(temp.proximity) %>% 
-              gather(X1:X159, key="obs2.t",value="proximity") %>% 
-              separate(obs2.t,into=c("X","obs2"),sep=1) %>%
-              mutate(obs2=as.numeric(obs2))
-ggplot(plot.data,aes(x=obs1,y=obs2))+geom_tile(aes(fill=proximity))+
-  scale_fill_gradientn(colors=c("white","blue"))+labs(x="",y="")
+```{r fig.height=5}
+fish_confuse <- as.data.frame(fish_rf$confusion[,1:7]) %>%
+  mutate(obs=rownames(fish_rf$confusion)) %>%
+#diag(temp.confusion) <- 0
+#temp.confusion <- data.frame(obs=rownames(fish_rf$confusion),
+ #                          temp.confusion)
+  as_tibble() %>% 
+  gather(Bream, Parkki, Perch, Pike, Roach, Smelt, Whitewish,
+         key="pred", value="error") 
 
+RFP1 <- ggplot(fish_confuse, aes(x=obs, y=pred)) +
+  geom_tile(aes(fill=error)) +
+  scale_fill_gradientn(colors=c("white", "#49006a")) + 
+  theme_bw() + 
+  theme(legend.position="bottom", aspect.ratio = 1)
+
+fish_votes <- data.frame(fish_rf$votes) %>% 
+  mutate(Obs=fish$OBS) %>%
+  gather(Species, vote, -Obs)
+
+#plot.data<-as_tibble(temp.votes) %>% 
+#  gather(Bream,Parkki,Perch,Pike,Roach,Smelt,Whitewish,
+#         key="Species",value="votes") 
+
+RFP2 <- ggplot(fish_votes, aes(x=Species, y=vote, 
+                               colour=Species)) +
+        geom_jitter(size=3, alpha=0.5, width=0.2) +
+          scale_colour_manual("", 
+     values=c("Bream"=colrs[1],"Parkki"=colrs[2],
+              "Perch"=colrs[3],"Pike"=colrs[4],
+              "Roach"=colrs[5],"Smelt"=colrs[6],
+              "Whitewish"=colrs[7])) +
+  theme(legend.position="None")
+
+grid.arrange(RFP1, RFP2, ncol=2)
 ```
 
 ---
@@ -893,9 +899,9 @@ Is a heatmap M-in-DS or D-in-MS? Or something else?
 
 [https://natydasilva.shinyapps.io/shinyppforest/](https://natydasilva.shinyapps.io/shinyppforest/)
 
-- Tree level:
-- Variable level:
-- Observation level:
+- Individuals: Attributes of observations, data plot, MDS, vote matrix.
+- Models: Examine aspects of each model, in comparison to others ni the ensemble - variable importance, tree structure, overall error, node splits, confusion.
+- Performance comparison: PPForest vs random forest, and performance by class.
 ---
 
 ## Smaller set of linked plots
@@ -1007,20 +1013,17 @@ The process remains the same in higher dimensions.
 
 ---
 
-## Exploring misclassifications
+## Final challenge!
+
+There is an additional data set provided. It is purely synthetic data. We have hidden something in it. Can you find it?
 
 ---
-
 ## Summary
 
-* The Toolbox: Grammar of graphics, multivariate data plots, dimension reduction, interactive graphics
-* Supervised Classification: Checking assumptions, examining misclassifications, variable importance, visualising boundaries, exploring ensembles
-* Trees: Exploring splits, oblique trees
-* Forests: Variable importance, confusion table, vote matrix, 
-proximity matrix, oblique forest shiny app
-* Support vector machines: support vectors, boundary
-* Neural networks: Components
-* High-dimension, small sample size
+* The toolbox: Grammar of graphics, multivariate data plots, dimension reduction, interactive graphics
+* Supervised classification: Checking assumptions, examining misclassifications, variable importance, visualising boundaries, exploring ensembles.
+* Unsupervised classification: Once you have a clustering, all of these methods can be applied to examine the groupings, and also compare different groupings.
+* High-dimension, small sample size can allow you to find virtually anything in the data. 
 
 ---
 ## Sources

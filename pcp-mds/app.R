@@ -13,11 +13,11 @@ library(tidyverse)
 library(plotly)
 
 data(olive)
-olive_mds <- cmdscale(dist(apply(olive[,3:10], 2, scale)), 
-                      k=2, x.ret=TRUE)
+#olive_mds <- cmdscale(dist(apply(olive[,3:10], 2, scale)), 
+#                      k=2, x.ret=TRUE)
 olive$region <- factor(olive$region, levels=1:3, labels=c("South", "Sardinia", "North"))
-olive <- olive %>% mutate(MDS1=olive_mds$points[,1],
-                          MDS2=olive_mds$points[,2])
+olive <- olive %>% mutate(MDS1=tsne_olive[,1],
+                          MDS2=tsne_olive[,2])
 myscale <- function(x) (x - mean(x)) / sd(x)
 scale.dat.melt <- olive %>%
   select(region, palmitic:eicosenoic) %>% 
@@ -33,12 +33,12 @@ ui <- fluidPage(
    # Application title
    titlePanel("Parallel coordinate plot linked to MDS plot"),
    fluidRow(column(
-     width = 6, align = "center", 
+     width = 7, align = "center", 
      plotlyOutput("parallel", height = 400)
    ), column(
-     width = 4, 
+     width = 3, 
      align = "center", 
-     plotlyOutput("mdsplot", width = 400, height = 400)
+     plotlyOutput("mdsplot", width = 200, height = 200)
    ))
 )
 
@@ -47,7 +47,7 @@ server <- function(input, output) {
 
   #Define reactive values for MDS plot and vote matrix plots
   rv <- reactiveValues(data = data.frame(
-    MDS1 = olive_mds$points[,1], MDS2 = olive_mds$points[,2],
+    MDS1 = tsne_olive[,1], MDS2 = tsne_olive[,2],
     Class = olive[,1], ids = 1:nrow(olive),
     fill = logical(nrow(olive))))
   
