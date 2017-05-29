@@ -641,20 +641,20 @@ Example shiny app for a projection pursuit forest:
 
 ---
 
-## Back-story
+## Back-story: underlying the app
 
-- Classification tree
-- Random forest
-- Projection pursuit tree
-- Projection pursuit forest
+- Classification tree: Looking at a tree, investigate number of samples at each node, impurity at each node, variable used to split
+- Projection pursuit tree: node is based on combination of variable, otherwise the same
+- Random forest: Across many trees, examine the error distribution, variable importance, vote matrix, proximity
+- Projection pursuit forest: Nodes and variable importance based on projection coefficients.
 
 ---
 
-## rpart: Whole tree
+## rpart: A single tree
 
 Using `rpart` library to fit the tree, and the `plot` function of `partykit` library to display the tree.
 
-```{r}
+```{r fig.height=5, fig.width=18}
 fish <- read.csv("fishcatch.csv")
 library(rpart)
 library(partykit)
@@ -666,122 +666,189 @@ plot(as.party(tree.result))
 
 ---
 
-## rpart: Node-level 
+## rpart: A single tree, node-level 
 
 
-```{r fig.height=3.5}
+```{r fig.height=4.5}
+colrs <- brewer.pal(8, "Dark2")
+shp <- 15:21
 TP1 <- fish %>% 
         filter(height>=33.9) %>%
         ggplot(aes(x=height, y=length3, 
                    color=Species, shape=Species)) +
-           geom_point(size=3)+ggtitle("Node 2") + 
-           geom_hline(yintercept=29.5,color="#7570B3") +
-  scale_colour_brewer("", palette="Dark2")
+           geom_point(size=3) + ggtitle("Node 2") + 
+           geom_hline(yintercept=29.5, color=colrs[8]) +
+  scale_colour_manual("", 
+     values=c("Bream"=colrs[1],"Parkki"=colrs[2],
+              "Perch"=colrs[3],"Pike"=colrs[4],
+              "Roach"=colrs[5],"Smelt"=colrs[6],
+              "Whitewish"=colrs[7])) +
+  scale_shape_manual("", 
+     values=c("Bream"=shp[1],"Parkki"=shp[2],
+              "Perch"=shp[3],"Pike"=shp[4],
+              "Roach"=shp[5],"Smelt"=shp[6],
+              "Whitewish"=shp[7])) + 
+  theme(legend.position="bottom", aspect.ratio=1)
 
-TP2<- fish %>% 
+TP2 <- fish %>% 
         filter(height<33.9 & height>=20.1) %>%
         ggplot(aes(x=height, y=width, 
                    color=Species, shape=Species)) + 
            geom_point(size=3) + ggtitle("Node 6") +     
-           geom_hline(yintercept=14.4, color="#7570B3") +
-  scale_colour_brewer("", palette="Dark2")
+           geom_hline(yintercept=14.4, color=colrs[8]) +
+  scale_colour_manual("", 
+     values=c("Bream"=colrs[1],"Parkki"=colrs[2],
+              "Perch"=colrs[3],"Pike"=colrs[4],
+              "Roach"=colrs[5],"Smelt"=colrs[6],
+              "Whitewish"=colrs[7])) +
+  scale_shape_manual("", 
+     values=c("Bream"=shp[1],"Parkki"=shp[2],
+              "Perch"=shp[3],"Pike"=shp[4],
+              "Roach"=shp[5],"Smelt"=shp[6],
+              "Whitewish"=shp[7])) + 
+  theme(legend.position="bottom", aspect.ratio=1)
 
-TP3<- fish %>% 
+TP3 <- fish %>% 
         filter(height<20.1) %>%
         ggplot(aes(x=height, y=weight, 
                    color=Species, shape=Species))+
           geom_point(size=3) + ggtitle("Node 9") +         
-          geom_hline(yintercept=109.95,color="#7570B3") +
-  scale_colour_brewer("", palette="Dark2")
+          geom_hline(yintercept=109.95, color=colrs[8]) +
+  scale_colour_manual("", 
+     values=c("Bream"=colrs[1],"Parkki"=colrs[2],
+              "Perch"=colrs[3],"Pike"=colrs[4],
+              "Roach"=colrs[5],"Smelt"=colrs[6],
+              "Whitewish"=colrs[7])) +
+  scale_shape_manual("", 
+     values=c("Bream"=shp[1],"Parkki"=shp[2],
+              "Perch"=shp[3],"Pike"=shp[4],
+              "Roach"=shp[5],"Smelt"=shp[6],
+              "Whitewish"=shp[7])) + 
+  theme(legend.position="bottom", aspect.ratio=1)
 
-grid.arrange(TP1, TP2, TP3,ncol=3)
+grid.arrange(TP1, TP2, TP3, ncol=3)
 ``` 
 
 
 ---
-## PPtree: Whole tree
+## PPtree: A single tree, nodes are combinations of vars
 
-```{r}
+```{r results='hide'}
 library(PPtreeViz)
-PPtree.result<-PPTreeclass(Species~.,data= fish[,-1])
+PPtree.result <- PPTreeclass(Species~., data= fish[,-1])
 plot(PPtree.result)
 ```
 
 ---
-## PPtree: Node level
+## PPtree: A single tree, node level
 
 ```{r fig.height=3.5}
-PPclassNodeViz(PPtree.result,node.id=1,Rule=1)
+PPclassNodeViz(PPtree.result, node.id=1, Rule=1)
 ```
 
 ```{r fig.height=3.5}
-PPclassNodeViz(PPtree.result,node.id=5,Rule=1)
+PPclassNodeViz(PPtree.result, node.id=5, Rule=1)
+```
+
+---
+class: inverse middle
+
+## Your Turn
+
+- Examine nodes 3, 4, 9. 
+- How well are the classes separated now?
+
+---
+
+## Exploring the random forest ensemble model
+
+- Tree level: examine error distribution across trees
+- Variable level: importance
+- Observation level: misclassifications, votes, proximity
+
+---
+
+## Random forest: tree level
+
+Each point is one tree.
+
+```{r fig.height=7}
+fish_rf <- randomForest(Species~., fish[,-1],
+                        importance=TRUE, proximity=TRUE)
+
+fish_error <- as_tibble(fish_rf$err.rate) %>% 
+  gather(Bream, Parkki, Perch, Pike, Roach, Smelt, Whitewish,
+         key="Species", value="prop") 
+ggplot(fish_error, aes(x=Species, y=prop)) +
+  geom_boxplot() +
+  #geom_point(alpha=0.5, aes(colour=Species)) +
+  geom_jitter(width=0.2,alpha=0.5, size=3, aes(colour=Species)) +
+    scale_colour_manual("", 
+     values=c("Bream"=colrs[1],"Parkki"=colrs[2],
+              "Perch"=colrs[3],"Pike"=colrs[4],
+              "Roach"=colrs[5],"Smelt"=colrs[6],
+              "Whitewish"=colrs[7])) +
+  ylab("Error rate") + theme(legend.position="bottom")
 ```
 
 ---
 
-## Exploring a random forest ensemble
+class: inverse middle
 
-- Tree level:
-- Variable level:
-- Observation level:
----
+## Your Turn
 
-## tree-level
-```{r}
-library(randomForest)
-rf.result<-randomForest(Species~.,fish[,-1],
-                        importance=TRUE,proximity=TRUE)
-
-plot.data<-as_tibble(rf.result$err.rate) %>% 
-  gather(Bream,Parkki,Perch,Pike,Roach,Smelt,Whitewish,
-         key="Species",value="prop") 
-ggplot(plot.data,aes(x=Species,y=prop))+
-  geom_boxplot()+
-  geom_point(alpha=0.2)+
-  geom_jitter(width=0.2,alpha=0.2)+
-  ylab("error rate")
-```
+- There is something missing in the display shown. What is it?
+- Turn this into a parallel coordinate plot, connecting the dots for each model.
 
 ---
-## Variable-level
 
-```{r}
-temp.importance <- data.frame(variable=rownames(rf.result$importance),
-                              rf.result$importance)
+## Random forest: Variable level
 
-plot.data<-as_tibble(temp.importance) %>% 
-  gather(Bream,Parkki,Perch,Pike,Roach,Smelt,Whitewish,
-         key="Species",value="importance") 
-VP1<-ggplot(plot.data,aes(x=variable,y=importance,color=Species,group=Species))+
-  geom_line(size=2)
+Across all trees, importance computed by class
 
-VP2<-ggplot(plot.data,aes(x=Species,y=importance,color=variable,group=variable))+
-  geom_line(size=2)
+```{r fig.height=5}
+fish_vimp <- data.frame(variable=rownames(fish_rf$importance),
+                              fish_rf$importance) %>%
+               as_tibble() %>% 
+                 gather(Bream, Parkki, Perch, Pike, Roach, 
+                        Smelt, Whitewish,
+                 key="Species", value="importance") 
+VP1 <- ggplot(fish_vimp, 
+              aes(x=variable, y=importance, 
+                  color=Species, group=Species)) +
+  geom_line(size=1) +
+  theme(legend.position="bottom")
+
+VP2 <- ggplot(fish_vimp, aes(x=Species, y=importance, 
+                           color=variable, group=variable)) +
+  geom_line(size=1) +
+  theme(legend.position="bottom")
   
-VP3<-ggplot(plot.data,aes(x=variable,y=Species))+geom_tile(aes(fill=importance))+
-  scale_fill_gradientn(colors=c("white","blue"))
+VP3 <- ggplot(fish_vimp, aes(x=variable, y=Species)) + 
+  geom_tile(aes(fill=importance)) +
+  scale_fill_gradientn(colors=c("white","blue")) +
+  theme(legend.position="bottom")
  
-grid.arrange(VP1,VP2,VP3,ncol=3)  
+grid.arrange(VP1, VP2, VP3, ncol=3)  
 ```
 
 ---
 ## observation-level
 
 ```{r}
-temp.confusion<-rf.result$confusion[,1:7]
-diag(temp.confusion)<-0
-temp.confusion<-data.frame(obs=rownames(rf.result$confusion),
+temp.confusion <- fish_rf$confusion[,1:7]
+diag(temp.confusion) <- 0
+temp.confusion <- data.frame(obs=rownames(fish_rf$confusion),
                            temp.confusion)
 
-plot.data<-as_tibble(temp.confusion) %>% 
+plot.data <- as_tibble(temp.confusion) %>% 
   gather(Bream,Parkki,Perch,Pike,Roach,Smelt,Whitewish,
          key="pred",value="error") 
 
 RFP1<-ggplot(plot.data,aes(x=obs,y=pred))+geom_tile(aes(fill=error))+
   scale_fill_gradientn(colors=c("white","blue"))
 
-temp.votes<-data.frame(obsID=1:nrow(fish),rf.result$votes)
+temp.votes<-data.frame(obsID=1:nrow(fish), fish_rf$votes)
 
 plot.data<-as_tibble(temp.votes) %>% 
   gather(Bream,Parkki,Perch,Pike,Roach,Smelt,Whitewish,
@@ -799,7 +866,7 @@ grid.arrange(RFP1, RFP2,ncol=2)
 
 ```{r}
 
-temp.proximity<-rf.result$proximity
+temp.proximity<-fish_rf$proximity
 temp.proximity<-data.frame(obs1=1:nrow(fish),
                            temp.proximity)
 
