@@ -1,7 +1,7 @@
 ---
 title: "Visualisation for Data Mining"
 author: "Di Cook & Eun-Kyung Lee"
-date: "May 30, 2017 <br> <br> Slides on http://bit.ly/dmvis2017"
+date: "May 30, 2017"
 output:
   xaringan::moon_reader:
     css: ["default", "myremark.css"]
@@ -68,6 +68,8 @@ class: inverse middle
 ## Getting setup
 
 - Download a zipped copy of the slides and data from [https://github.com/EK-Lee/WOMBAT-2017](https://github.com/EK-Lee/WOMBAT-2017)
+- To follow along with the slides, open the file `VisualDM.html`
+- To run the code examples, open `VisualDM.Rmd` in RStudio
 - Cheatsheets for [rmarkdown](https://www.rstudio.com/wp-content/uploads/2016/03/rmarkdown-cheatsheet-2.0.pdf), [ggplot2](https://www.rstudio.com/wp-content/uploads/2016/11/ggplot2-cheatsheet-2.1.pdf), [shiny](https://www.rstudio.com/wp-content/uploads/2016/01/shiny-cheatsheet.pdf)
 
 ---
