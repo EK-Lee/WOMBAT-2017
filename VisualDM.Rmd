@@ -1,7 +1,7 @@
 ---
 title: "Visualisation for Data Mining"
 author: "Di Cook & Eun-Kyung Lee"
-date: "May 30, 2017"
+date: "May 30, 2017 <br> <br> Slides on http://bit.ly/dmvis2017"
 output:
   xaringan::moon_reader:
     css: ["default", "myremark.css"]
