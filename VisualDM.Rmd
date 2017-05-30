@@ -38,6 +38,7 @@ library(GGally)
 library(tourr)
 library(RColorBrewer)
 library(tsne)
+library(PPtreeViz)
 ```
 
 ## Conceptual framework
@@ -214,7 +215,7 @@ p <- ggplot(model_r2, aes(x=df, y=val, label=name)) +
   ylab("R2")
 ```
 
-```{r fig.width=2, fig.height=1.5}
+```{r fig.width=9, fig.height=7}
 ggplotly(p)
 ```
 
@@ -248,7 +249,7 @@ model_coef$var <- factor(model_coef$var,
 
 ```
 
-```{r fig.width=2, fig.height=1.5}
+```{r fig.width=9, fig.height=7}
 p <- ggplot(model_coef, aes(x = var, y = val,  
                      key = id, text = id)) + 
   #geom_jitter(width = 0.25, alpha = 0.5) +
@@ -547,7 +548,7 @@ class: inverse middle
 ```{r eval=FALSE}
 pal <- brewer.pal(length(levels(olive$region)), "Dark2")
 col <- pal[as.numeric(olive$region)]
-quartz()
+quartz() # On Windows use X11() 
 animate_xy(olive[,3:10], col=col)
 ```
 
@@ -655,7 +656,7 @@ Example shiny app for a projection pursuit forest:
 Using `rpart` library to fit the tree, and the `plot` function of `partykit` library to display the tree.
 
 ```{r fig.height=5, fig.width=18}
-fish <- read_csv("fishcatch.csv")
+fish <- read.csv("fishcatch.csv")
 library(rpart)
 library(partykit)
 library(ggplot2)
@@ -734,7 +735,6 @@ grid.arrange(TP1, TP2, TP3, ncol=3)
 ## PPtree: A single tree, nodes are combinations of vars
 
 ```{r results='hide'}
-library(PPtreeViz)
 PPtree.result <- PPTreeclass(Species~., data=fish[,-1])
 plot(PPtree.result)
 ```
@@ -860,7 +860,7 @@ fish_confuse <- as.data.frame(fish_rf$confusion[,1:7]) %>%
 
 RFP1 <- ggplot(fish_confuse, aes(x=obs, y=pred)) +
   geom_tile(aes(fill=error)) +
-  scale_fill_gradientn(colors=c("white", "#49006a")) + 
+  scale_fill_gradientn("", colors=c("white", "#49006a")) + 
   theme_bw() + 
   theme(legend.position="bottom", aspect.ratio = 1)
 
