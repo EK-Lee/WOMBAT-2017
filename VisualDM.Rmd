@@ -41,6 +41,28 @@ library(tsne)
 library(PPtreeViz)
 ```
 
+## Who are we?
+
+.pull-left[
+Di is
+  - Professor of Business Analytics at Monash Uni
+  - Editor of the Journal of Computational and Graphical Statistics
+  - Fellow of the American Statistical Association
+  - Ordinary Member of the R Foundation
+  - Loves tennis, soccer and cricket
+]
+
+.pull-right[
+Eun-Kyung is
+  - Associate Professor at EWHA Women's University, Seoul, Korea
+  - Chair of the Department for 3 more months!
+  - Associate Editor of the Journal of Computational and Graphical Statistics
+  - Author of many R packages, including PPtreeViz, PPtreeEMSaov, ASVPC
+  - Loves sleeping!
+]
+
+---
+
 ## Conceptual framework
 
 - Visual methods for high-dimensional data are well-developed and understood. Toolbox includes:
