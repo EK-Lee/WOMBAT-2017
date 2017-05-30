@@ -41,6 +41,7 @@ library(tsne)
 library(PPtreeViz)
 ```
 
+class: inverse middle 
 ## Who are we?
 
 .pull-left[
@@ -60,6 +61,14 @@ Eun-Kyung is
   - Author of many R packages, including PPtreeViz, PPtreeEMSaov, ASVPC
   - Loves sleeping!
 ]
+
+---
+
+class: inverse middle 
+## Getting setup
+
+- Download a zipped copy of the slides and data from [https://github.com/EK-Lee/WOMBAT-2017](https://github.com/EK-Lee/WOMBAT-2017)
+- Cheatsheets for [rmarkdown](https://www.rstudio.com/wp-content/uploads/2016/03/rmarkdown-cheatsheet-2.0.pdf), [ggplot2](https://www.rstudio.com/wp-content/uploads/2016/11/ggplot2-cheatsheet-2.1.pdf), [shiny](https://www.rstudio.com/wp-content/uploads/2016/01/shiny-cheatsheet.pdf)
 
 ---
 
