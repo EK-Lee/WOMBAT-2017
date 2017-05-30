@@ -178,6 +178,10 @@ This is a typical diagram used to explain how to build a Support Vector Machine.
 
 Illustration produced by cyc, creative commons license, available on wikipedia
 
+```{r eval=FALSE}
+M-in-DS! To explain the model construction the cartoon shows the model with an idealised data, but then this is not a standard plot for any implementation.
+```
+
 ---
 
 
