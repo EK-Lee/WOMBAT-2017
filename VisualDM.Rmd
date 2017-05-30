@@ -172,7 +172,7 @@ class: inverse middle center
 
 This is a typical diagram used to explain how to build a Support Vector Machine. Is it M-in-DS or D-in-MS??
 
-![produced by cyc, creative commons license, available on wikipedia](svm.pdf)
+![produced by cyc, creative commons license, available on wikipedia](svm.png)
 
 Illustration produced by cyc, creative commons license, available on wikipedia
 
