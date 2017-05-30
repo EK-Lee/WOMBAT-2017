@@ -76,22 +76,31 @@ server <- function(input, output) {
     yy <- rv$data$ids[rv$data$fill]
     
       p <- ggplot(scale.dat.melt, aes(x = Variables, y = Value,
-                                      group = ids, key = ids, colour = Class, var = var)) +
-        geom_line(alpha = 0.3) + scale_x_discrete(limits = levels(as.factor(scale.dat.melt$var)), expand = c(0.01,0.01)) +
-        ggtitle("Data parallel plot ") + theme(legend.position = "none", axis.text.x  = element_text(angle = 90, vjust = 0.5), aspect.ratio = 1) +
+                  group = ids, key = ids, colour = Class, var = var)) +
+        geom_line(alpha = 0.5) + 
+        scale_x_discrete(limits = levels(as.factor(scale.dat.melt$var)), 
+                         expand = c(0.01,0.01)) +
+        ggtitle("Data parallel plot ") + 
+        theme(legend.position = "none", 
+              axis.text.x  = element_text(angle = 90, vjust = 0.5)) +
         scale_colour_brewer(type = "qual", palette = "Dark2")
       
       if (length(yy) > 0) {
         dat <-   scale.dat.melt %>% dplyr::filter(ids %in% yy)
         p <- ggplot(scale.dat.melt, aes(x = Variables, y = Value, 
-                                        group = ids, key = ids, color = Class, var = var)) +
-          geom_line(alpha = 0.1) + scale_x_discrete(limits = levels(as.factor(scale.dat.melt$var)), expand = c(0.01,0.01)) + 
-          ggtitle("Data parallel plot") + theme(legend.position = "none",axis.text.x  = element_text(angle = 90, vjust = 0.5), aspect.ratio = 1) + 
+                group = ids, key = ids, color = Class, var = var)) +
+          geom_line(alpha = 0.01) + 
+          scale_x_discrete(limits = levels(as.factor(scale.dat.melt$var)),
+                           expand = c(0.01,0.01)) + 
+          ggtitle("Data parallel plot") + 
+            theme(legend.position = "none",
+                  axis.text.x  = element_text(angle = 90, vjust = 0.5)) + 
           scale_colour_brewer(type = "qual",palette = "Dark2")
         
-        p <- p + geom_line(data = dat) 
+        p <- p + geom_line(data = dat, size=1) 
       }
-    ggplotly(p,tooltip = c("var","colour","y","key")) %>% layout(dragmode = "select")
+    ggplotly(p,tooltip = c("var","colour","y","key")) %>% 
+      layout(dragmode = "select")
   })
   
   #MDS plot
@@ -100,14 +109,23 @@ server <- function(input, output) {
     
     p <- ggplot(data = rv$data, aes(x = MDS1, y = MDS2, 
                                     colour = Class, key = ids)) + 
-      geom_point(size = I(3),alpha = .5)  + theme(legend.position = "none", legend.text = element_text(angle = 90), legend.key = element_blank(), aspect.ratio =
-                                                    1)  + labs(y = "MDS 2", x = "MDS 1", title = "Multidimensional Scaling") +
+      geom_point(size = I(3), alpha = .5)  + 
+      theme(legend.position = "none", 
+            legend.text = element_text(angle = 90), 
+            legend.key = element_blank(), 
+            aspect.ratio = 1) + 
+      labs(y = "MDS 2", x = "MDS 1", 
+           title = "Multidimensional Scaling") +
       scale_colour_brewer(type = "qual",palette = "Dark2")
     
     if (length(yy) > 0) {
       dat <- rv$data %>% dplyr::filter(ids %in% yy)
-      p <- ggplot(data = rv$data, aes(x = MDS1, y = MDS2, color = Class, key = ids)) + 
-        geom_point( size = I(3), alpha = .1) + theme(legend.position = "none", legend.text = element_text(angle = 90), legend.key = element_blank(), aspect.ratio =1) +
+      p <- ggplot(data = rv$data, 
+                  aes(x = MDS1, y = MDS2, color = Class, key = ids)) + 
+             geom_point(size = I(3), alpha = .1) + 
+             theme(legend.position = "none", 
+                   legend.text = element_text(angle = 90), 
+                   legend.key = element_blank(), aspect.ratio = 1) +
         labs(y = "MDS 2", x = "MDS 1", title = "Multidimensional Scaling")  + 
         scale_colour_brewer(type =   "qual",palette = "Dark2")
       
