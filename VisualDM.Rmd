@@ -889,11 +889,19 @@ fish_confuse <- as.data.frame(fish_rf$confusion[,1:7]) %>%
   gather(Bream, Parkki, Perch, Pike, Roach, Smelt, Whitewish,
          key="pred", value="error") 
 
-RFP1 <- ggplot(fish_confuse, aes(x=obs, y=pred)) +
-  geom_tile(aes(fill=error)) +
-  scale_fill_gradientn("", colors=c("white", "#49006a")) + 
-  theme_bw() + 
-  theme(legend.position="bottom", aspect.ratio = 1)
+#RFP1 <- ggplot(fish_confuse, aes(x=obs, y=pred)) +
+#  geom_tile(aes(fill=error)) +
+# scale_fill_gradientn("", colors=c("white", "#49006a")) + 
+#  theme_bw() + 
+#  theme(legend.position="bottom", aspect.ratio = 1)
+#
+plot.data <- data.frame(obs=rep(fish_confuse$obs,fish_confuse$error),
+                        pred=rep(fish_confuse$pred,fish_confuse$error))
+RFP1 <- ggplot(plot.data,aes(x=obs, y=pred)) +
+           geom_point() +
+           geom_jitter(width=0.2,height=0.2) + 
+          theme_bw() + 
+          theme(legend.position="bottom", aspect.ratio = 1)
 
 fish_votes <- data.frame(fish_rf$votes) %>% 
   mutate(Obs=fish$OBS) %>%
