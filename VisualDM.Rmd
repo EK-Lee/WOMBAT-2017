@@ -660,7 +660,7 @@ library(rpart)
 library(partykit)
 library(ggplot2)
 library(tidyverse)
-tree.result <- rpart(Species~., data= fish[,-1])
+tree.result <- rpart(Species~., data=fish[,-1])
 plot(as.party(tree.result))
 ``` 
 
@@ -735,7 +735,7 @@ grid.arrange(TP1, TP2, TP3, ncol=3)
 
 ```{r results='hide'}
 library(PPtreeViz)
-PPtree.result <- PPTreeclass(Species~., data= fish[,-1])
+PPtree.result <- PPTreeclass(Species~., data=fish[,-1])
 plot(PPtree.result)
 ```
 
