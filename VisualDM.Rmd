@@ -58,7 +58,7 @@ Eun-Kyung is
   - Associate Professor at EWHA Women's University, Seoul, Korea
   - Chair of the Department for 3 more months!
   - Associate Editor of the Journal of Computational and Graphical Statistics
-  - Author of many R packages, including PPtreeViz, PPtreeEMSaov, ASVPC
+  - Author of many R packages, including PPtreeViz, PPtree, EMSaov, asVPC
   - Loves sleeping!
 ]
 
