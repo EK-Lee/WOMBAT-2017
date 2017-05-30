@@ -16,6 +16,7 @@ data(olive)
 #olive_mds <- cmdscale(dist(apply(olive[,3:10], 2, scale)), 
 #                      k=2, x.ret=TRUE)
 olive$region <- factor(olive$region, levels=1:3, labels=c("South", "Sardinia", "North"))
+load("../olive_tsne.rda")
 olive <- olive %>% mutate(MDS1=tsne_olive[,1],
                           MDS2=tsne_olive[,2])
 myscale <- function(x) (x - mean(x)) / sd(x)
