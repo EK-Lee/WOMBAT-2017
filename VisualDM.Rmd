@@ -476,6 +476,20 @@ class: inverse middle
 - What transformations might be recommended?
 - Are there other cleaning that you would recommend before modeling?
 
+```{r eval=FALSE}
+Relationships:
+- skewness
+- linear relationship bw totalCurrVal and livingArea
+- heteroskedastic variance in totalCurrVal, size and livingArea
+- very little data in zone:Other
+- slightly higher values in totalCurrVal, size in zone:RS
+- a few outliers
+
+Transformations: log or sqrt
+
+Cleaning: maybe drop zone:Other
+```
+
 ---
 
 ## Parallel coordinate plot
@@ -570,6 +584,7 @@ ggparcoord(ratcns, columns=1:9, alphaLines=0.5,
            scale="globalminmax")
 ggparcoord(ratcns, columns=1:9, boxplot=TRUE,
            alphaLines=0, scale="globalminmax")
+# Focus on time, vs focus on genes
 ```
 ---
 
@@ -587,6 +602,12 @@ pal <- brewer.pal(length(levels(olive$region)), "Dark2")
 col <- pal[as.numeric(olive$region)]
 quartz() # On Windows use X11() 
 animate_xy(olive[,3:10], col=col)
+```
+
+```{r eval=FALSE}
+- Yes
+- two more in south and sardinia are easy to seek
+- yes
 ```
 
 ---
@@ -837,6 +858,18 @@ class: inverse middle
 - There is something missing in the display shown. What is it?
 - Turn this into a parallel coordinate plot, connecting the dots for each model.
 
+```{r eval=FALSE}
+- Which points belong to which model
+
+fish_error <- fish_error %>% mutate(id = rep(1:500, 7))
+ggplot(fish_error, aes(x=Species, y=prop)) +
+  #geom_boxplot() +
+  #geom_point(alpha=0.5, aes(colour=Species)) +
+  geom_point(width=0.2,alpha=0.5, size=3) +
+  geom_line(aes(group=id)) +
+  ylab("Error rate") + theme(legend.position="bottom")
+```
+
 ---
 
 ## Random forest: Variable level
@@ -878,6 +911,10 @@ class: inverse middle
 In each of the previous displays, the focus is different. 
 - How are variables mapped to graphical elements in each?
 - For each display: What is easy to read off? What is hard? 
+
+```{r}
+
+```
 
 ---
 
@@ -1060,7 +1097,7 @@ The process remains the same in higher dimensions.
 
 ## Final challenge!
 
-There is an additional data set provided. It is purely synthetic data. We have hidden something in it. Can you find it?
+There is an additional data set provided, `numbat.csv`. It is purely synthetic data. We have hidden something in it. Can you find it?
 
 ---
 ## Summary
@@ -1069,6 +1106,7 @@ There is an additional data set provided. It is purely synthetic data. We have h
 * Supervised classification: Checking assumptions, examining misclassifications, variable importance, visualising boundaries, exploring ensembles.
 * Unsupervised classification: Once you have a clustering, all of these methods can be applied to examine the groupings, and also compare different groupings.
 * High-dimension, small sample size can allow you to find virtually anything in the data. 
+* Plot the data! 
 
 ---
 ## Sources

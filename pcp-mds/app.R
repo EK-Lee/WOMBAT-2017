@@ -39,7 +39,7 @@ ui <- fluidPage(
    ), column(
      width = 3, 
      align = "center", 
-     plotlyOutput("mdsplot", width = 200, height = 200)
+     plotlyOutput("mdsplot", width = 300, height = 300)
    ))
 )
 
